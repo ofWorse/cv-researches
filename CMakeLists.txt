@@ -8,6 +8,9 @@ find_package(OpenCV REQUIRED)
 
 add_executable(cv-researches 
     src/main.cpp
+    src/application.cpp
+    src/image_viewer.cpp
+    src/texture_manager.cpp
 
     external/imgui/imgui.cpp
     external/imgui/imgui_draw.cpp
@@ -19,6 +22,7 @@ add_executable(cv-researches
 )
 
 target_include_directories(cv-researches PRIVATE 
+    external
     external/imgui
     external/imgui/backends
 )
