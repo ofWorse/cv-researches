@@ -18,7 +18,7 @@ bool TextureManager::loadTextureFromFile(const std::string& path, GLuint& outTex
 
     if(!imageData) 
     {
-        std::cerr << "Failed to load texture: " << path << stbi_failure_reason() << '\n';
+        std::cerr << "Failed to load texture: " << path << " - " << stbi_failure_reason() << '\n';
         return false;
     }
 
@@ -66,10 +66,11 @@ bool TextureManager::loadTexture(const std::string& path, const std::string& key
 {
     std::string finalKey = key.empty() ? generateKey(path) : key;
 
+    // Если текстура с таким ключом уже существует, удаляем её перед загрузкой новой
     if(hasTexture(finalKey)) 
     {
-        std::cout << "Texture already loaded with key '" << finalKey << '\n';
-        return true;
+        std::cout << "Replacing existing texture with key: " << finalKey << '\n';
+        unloadTexture(finalKey);
     }
     
     auto texture = std::make_unique<Texture>();
@@ -98,11 +99,17 @@ Texture* TextureManager::getTexture(const std::string& key) const
 
 void TextureManager::unloadTexture(const std::string& key) 
 {
-    textures.erase(key);
+    auto it = textures.find(key);
+    if(it != textures.end())
+    {
+        std::cout << "Unloading texture: " << key << '\n';
+        textures.erase(it);
+    }
 }
 
 void TextureManager::clear(void) 
 {
+    std::cout << "Clearing all textures\n";
     textures.clear();
 }
 
