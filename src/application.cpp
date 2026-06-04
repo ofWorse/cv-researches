@@ -65,6 +65,12 @@ bool Application::initImGui(void)
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
+    ImFontConfig config;
+    config.MergeMode = true;
+    config.GlyphMinAdvanceX = 13.0f;
+
+    io.Fonts->AddFontDefault();
+
     ImGui::StyleColorsDark();
 
     if(!ImGui_ImplGlfw_InitForOpenGL(window, true)) 
