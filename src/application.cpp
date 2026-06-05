@@ -92,6 +92,8 @@ void Application::initComponents(void)
 {
     imageViewer = std::make_unique<ImageViewer>();
     imageViewer->init();
+    interpolationWindow = std::make_unique<InterpolationWindow>();
+
 }
 
 void Application::run(void) 
@@ -165,9 +167,10 @@ void Application::renderUI(void)
             ImGui::EndMenu();
         }
 
-        if(ImGui::BeginMenu("View"))
+        if(ImGui::BeginMenu("View")) 
         {
             ImGui::MenuItem("Image Viewer", nullptr, &imageViewer->isVisible);
+            ImGui::MenuItem("Interpolation Tool", nullptr, &interpolationWindow->isVisible);
             ImGui::EndMenu();
         }
 
@@ -177,6 +180,11 @@ void Application::renderUI(void)
     if(imageViewer && imageViewer->isVisible) 
     {
         imageViewer->render();
+    }
+
+    if(interpolationWindow && interpolationWindow->isVisible) 
+    {
+        interpolationWindow->render();
     }
 
     ImGui::Begin("Application Info");

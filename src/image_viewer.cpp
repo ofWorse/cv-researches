@@ -13,7 +13,13 @@ ImageViewer::ImageViewer(void)
     , autoFit(true)
     , currentPath("")
     , showOnlyImages(false)
+    , showCoordinates(true)
+    , hasStartPoint(false)
+    , hasEndPoint(false)
 {
+    currentMouseCoord = ImVec2(0,0);
+    currentMouseCoordNorm = ImVec2(0,0);
+    startPoint = endPoint = ImVec2(0,0);
 }
 
 ImageViewer::~ImageViewer(void) 
@@ -84,6 +90,11 @@ std::string ImageViewer::formatFileSize(uintmax_t size)
 void ImageViewer::update(void) 
 {
     
+}
+
+void ImageViewer::copyToClipboard(const std::string& text) 
+{
+    ImGui::SetClipboardText(text.c_str());
 }
 
 void ImageViewer::navigateTo(const std::string& newPath)
@@ -212,6 +223,8 @@ void ImageViewer::renderImageDisplay(void)
     ImGui::BeginChild("ImageDisplay", ImVec2(0, 0), true);
 
     Texture* texture = TextureManager::getInstance().getTexture("current_image");
+    static ImVec2 imageScreenPos;
+    static ImVec2 imageDisplaySize;
 
     if(texture && texture->id) 
     {
@@ -237,19 +250,69 @@ void ImageViewer::renderImageDisplay(void)
             (available_size.y - image_size.y) * 0.5f
         );
         
-        ImGui::SetCursorScreenPos(ImVec2(
+        ImVec2 final_pos = ImVec2(
             cursor_pos.x + center_offset.x + imagePosition.x,
             cursor_pos.y + center_offset.y + imagePosition.y
-        ));
+        );
+        ImGui::SetCursorScreenPos(final_pos);
+        
+        imageScreenPos = final_pos;
+        imageDisplaySize = image_size;
         
         ImGui::Image((ImTextureID)(intptr_t)texture->id, image_size);
         
+        // --- Отображение координат мыши ---
+        if (ImGui::IsItemHovered()) {
+            ImVec2 mousePos = ImGui::GetMousePos();
+            // вычисляем локальные координаты в текстуре (0..1)
+            float u = (mousePos.x - imageScreenPos.x) / imageDisplaySize.x;
+            float v = (mousePos.y - imageScreenPos.y) / imageDisplaySize.y;
+            if (u >= 0 && u <= 1 && v >= 0 && v <= 1) {
+                currentMouseCoordNorm = ImVec2(u, v);
+                currentMouseCoord = ImVec2(u * texture->width, v * texture->height);
+            }
+        }
+        
+        // --- Панель координат и запоминания ---
+        ImGui::Separator();
+        ImGui::Text("Mouse coordinates: (%.1f, %.1f) px  |  (%.3f, %.3f) rel", 
+                    currentMouseCoord.x, currentMouseCoord.y,
+                    currentMouseCoordNorm.x, currentMouseCoordNorm.y);
+        
+        ImGui::SameLine();
+        if (ImGui::SmallButton("Copy")) {
+            std::string coordText = std::to_string((int)currentMouseCoord.x) + ", " + std::to_string((int)currentMouseCoord.y);
+            ImGui::SetClipboardText(coordText.c_str());
+        }
+        
+        ImGui::BeginGroup();
+        if (ImGui::Button("Set Start Point")) {
+            startPoint = currentMouseCoord;
+            hasStartPoint = true;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Set End Point")) {
+            endPoint = currentMouseCoord;
+            hasEndPoint = true;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Clear Points")) {
+            hasStartPoint = false;
+            hasEndPoint = false;
+        }
+        ImGui::EndGroup();
+        
+        if (hasStartPoint) ImGui::Text("Start: (%.1f, %.1f)", startPoint.x, startPoint.y);
+        if (hasEndPoint)   ImGui::Text("End:   (%.1f, %.1f)", endPoint.x, endPoint.y);
+        
+        // --- Обработка панорамирования (правой кнопкой) ---
         if(ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Right)) 
         {
             imagePosition.x += ImGui::GetIO().MouseDelta.x;
             imagePosition.y += ImGui::GetIO().MouseDelta.y;
         }
         
+        // Зум колесиком
         if(ImGui::IsItemHovered())
         {
             float wheel = ImGui::GetIO().MouseWheel;

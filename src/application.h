@@ -1,6 +1,7 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
+#include "interpolation_window.h"
 #include <imgui.h>
 #include <GLFW/glfw3.h>
 #include <vector>
@@ -13,7 +14,7 @@ class Application
 private:
     GLFWwindow* window;
     std::unique_ptr<ImageViewer> imageViewer;
-
+    std::unique_ptr<InterpolationWindow> interpolationWindow;
     bool isRunning;
     ImVec4 clearColor;
 

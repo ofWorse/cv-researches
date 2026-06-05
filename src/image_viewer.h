@@ -22,19 +22,27 @@ class ImageViewer
 {
 private:
     std::vector<FileSystemEntry> fileSystemEntries;
-    std::string currentDir;
-    std::string currentImage;
-    int selectedIndex;
-
-    float zoomLevel;
-    ImVec2 imagePosition;
-    bool autoFit;
-    
     std::stack<std::string> backHistory;
     std::stack<std::string> forwardHistory;
     std::string currentPath;
+    std::string currentDir;
+    std::string currentImage;
+
+    int selectedIndex;
+
+    float zoomLevel;
     
+    bool autoFit;
+    bool showCoordinates;
+    bool hasStartPoint;
+    bool hasEndPoint;
     bool showOnlyImages;
+    
+    ImVec2 imagePosition;
+    ImVec2 currentMouseCoord;
+    ImVec2 currentMouseCoordNorm;
+    ImVec2 startPoint;
+    ImVec2 endPoint;
     
 public:
     ImageViewer(void);
@@ -47,6 +55,8 @@ public:
     bool isVisible{true};
 
 private:
+    void copyToClipboard(const std::string& text);
+
     void renderFileBrowser(void);
     void renderImageDisplay(void);
     void renderToolBar(void);
