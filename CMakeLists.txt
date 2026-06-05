@@ -9,6 +9,8 @@ find_package(OpenCV REQUIRED)
 add_executable(cv-researches 
     src/main.cpp
     src/application.cpp
+    src/interpolator.cpp
+    src/interpolation_window.cpp
     src/image_viewer.cpp
     src/texture_manager.cpp
 
