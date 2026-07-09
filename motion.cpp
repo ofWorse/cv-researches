@@ -94,7 +94,7 @@ int main(int argc, char** argv)
                 debug,
                 cv::Point(box.minx, box.miny),
                 cv::Point(box.maxx, box.maxy),
-                cv::Scalar(0, 0, 255), // Красный цвет
+                cv::Scalar(0, 0, 255),
                 2
             );
         }
